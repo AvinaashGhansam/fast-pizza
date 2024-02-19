@@ -1,5 +1,26 @@
+import { useLoaderData } from "react-router-dom";
+import MenuItem from "./MenuItem.tsx";
+import { MenuType } from "./types/menu-types.ts";
+import { getMenu } from "../../services/apiRestaurant.ts";
+
 function Menu() {
-  return <h1>Menu</h1>;
+  // Step 3 use loader hook
+  const menus = useLoaderData() as MenuType[];
+  console.log(menus);
+
+  console.log("Look here ", menus);
+  return (
+    <ul>
+      {menus.map((pizza) => (
+        <MenuItem pizza={pizza} key={pizza.id} />
+      ))}
+    </ul>
+  );
+}
+
+export async function loader() {
+  // Step 1
+  return await getMenu();
 }
 
 export default Menu;

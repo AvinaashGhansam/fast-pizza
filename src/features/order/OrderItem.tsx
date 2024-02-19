@@ -6,11 +6,11 @@ function OrderItem({ item, isLoadingIngredients, ingredients }) {
       <div>
         <p>
           <span>{quantity}&times;</span> {name}
-  </p>
-  <p>{formatCurrency(totalPrice)}</p>
-  </div>
-  </li>
-);
+        </p>
+        <p>{formatCurrency(totalPrice)}</p>
+      </div>
+    </li>
+  );
 }
 
 export default OrderItem;

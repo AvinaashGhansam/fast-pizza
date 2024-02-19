@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
+import { createOrder } from "../../services/apiRestaurant.ts";
+
+import { OrderType } from "./type/OrderType.ts";
 
 // https://uibakery.io/regex-library/phone-number
-const isValidPhone = (str) =>
+const isValidPhone = (str: string) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
-    str
+    str,
   );
 
 const fakeCart = [
@@ -31,6 +34,10 @@ const fakeCart = [
 ];
 
 function CreateOrder() {
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+  const formError = useActionData() as OrderType;
+
   // const [withPriority, setWithPriority] = useState(false);
   const cart = fakeCart;
 
@@ -38,7 +45,7 @@ function CreateOrder() {
     <div>
       <h2>Ready to order? Let's go!</h2>
 
-      <form>
+      <Form method="POST">
         <div>
           <label>First Name</label>
           <input type="text" name="customer" required />
@@ -48,6 +55,7 @@ function CreateOrder() {
           <label>Phone number</label>
           <div>
             <input type="tel" name="phone" required />
+            {formError?.phone && <p>{formError.phone}</p>}
           </div>
         </div>
 
@@ -70,11 +78,52 @@ function CreateOrder() {
         </div>
 
         <div>
-          <button>Order now</button>
+          <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          <button disabled={isSubmitting}>
+            {isSubmitting ? "Placing Order..." : "Order Now"}
+          </button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 }
 
+/**
+ * Use to write / mutate data
+ */
+export async function action({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const data: Record<string, string> = {};
+  // Iterate over formData entries and convert them to strings
+  for (const [key, value] of formData.entries()) {
+    // Check if the value is a File object, if so, skip it or handle it accordingly
+    if (value instanceof File) {
+      // Handle File value, if needed
+      continue;
+    }
+    data[key] = value.toString();
+  }
+  const order = {
+    ...data,
+    cart: JSON.parse(data.cart),
+    priority: data.priority === "on",
+  };
+
+  console.log(order);
+  // Validation and error handling
+  const errors: Record<string, string> = {};
+
+  if (!isValidPhone(order.cart.phone)) {
+    errors.phone =
+      "Please input a correct phone number. We need it to contact you";
+  }
+
+  // Check if there are any errors
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+
+  const newOrder = (await createOrder(order)) as OrderType;
+  return redirect(`/order/${newOrder.id}`);
+}
 export default CreateOrder;

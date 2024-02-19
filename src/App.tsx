@@ -1,34 +1,50 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./ui/Home.tsx";
-import Menu from "./features/menu/Menu.tsx";
+import AppLayout from "./components/AppLayout.tsx";
+import Home from "./components/Home.tsx";
 import Cart from "./features/cart/Cart.tsx";
-import CreateOrder from "./features/order/CreateOrder.tsx";
-import Order from "./features/order/Order.tsx";
+import CreateOrder, {
+  action as orderAction,
+} from "./features/order/CreateOrder.tsx";
+import Order, { loader as orderLoader } from "./features/order/Order.tsx";
+import { route } from "./utils/router/route.ts";
+import Menu, { loader as menuLoader } from "./features/menu/Menu.tsx";
+import CustomError from "./components/CustomError.tsx";
 
-const router = createBrowserRouter([
+const routes = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/menu",
-    element: <Menu />,
-  },
-  {
-    path: "/cart",
-    element: <Cart />,
-  },
-  {
-    path: "/order/new",
-    element: <CreateOrder />,
-  },
-  {
-    path: "/order/:orderId",
-    element: <Order />,
+    element: <AppLayout />,
+    errorElement: <CustomError />,
+    children: [
+      {
+        path: route.HOME,
+        element: <Home />,
+      },
+      {
+        path: route.MENU,
+        element: <Menu />,
+        loader: menuLoader /*Step 2*/,
+        errorElement: <CustomError />,
+      },
+      {
+        path: route.CART,
+        element: <Cart />,
+      },
+      {
+        path: route.ORDER,
+        element: <CreateOrder />,
+        action: orderAction,
+      },
+      {
+        path: route.VIEW_ORDER,
+        element: <Order />,
+        loader: orderLoader,
+        errorElement: <CustomError />,
+      },
+    ],
   },
 ]);
 function App() {
-  return <RouterProvider router={router} />;
+  return <RouterProvider router={routes} />;
 }
 
 export default App;
