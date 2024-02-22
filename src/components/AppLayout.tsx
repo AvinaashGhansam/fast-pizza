@@ -8,17 +8,19 @@ function AppLayout() {
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
   return (
-    <div className="layout">
+    <div className="grid h-screen grid-rows-[auto_1fr_auto]">
       {
         isLoading && (
           <LoaderUI />
         ) /*This will load the loader if it's in a loading state*/
       }
       <Header />
-      <main>
-        <Outlet />
-      </main>
-      <CartOverview />
+      <div className="overflow-scroll">
+        <main className="mx-auto">
+          <Outlet />
+        </main>
+        <CartOverview />
+      </div>
     </div>
   );
 }
