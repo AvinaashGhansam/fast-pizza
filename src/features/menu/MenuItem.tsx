@@ -1,5 +1,6 @@
 import { formatCurrency } from "../../utils/helpers.ts";
 import { MenuType } from "./types/menu-types.ts";
+import Button from "../../components/Button.tsx";
 
 interface MenuItemProps {
   pizza: MenuType;
@@ -9,15 +10,28 @@ function MenuItem({ pizza }: MenuItemProps) {
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
 
   return (
-    <li>
-      <img src={imageUrl} alt={name} />
-      <div>
-        <p>
+    <li className="flex gap-4 py-2">
+      <img
+        className={`h-24 ${soldOut ? "opacity-70 grayscale" : ""}`}
+        src={imageUrl}
+        alt={name}
+      />
+      <div className="flex grow flex-col pt-0.5">
+        <p className="font-medium">
           {id} {name}
         </p>
-        <p>{ingredients.join(", ")}</p>
-        <div>
-          {!soldOut ? <p>{formatCurrency(unitPrice)}</p> : <p>Sold out</p>}
+        <p className="text-sm capitalize italic text-stone-500">
+          {ingredients.join(", ")}
+        </p>
+        <div className="mt-auto flex items-center justify-between">
+          {!soldOut ? (
+            <p className="text-sm">{formatCurrency(unitPrice)}</p>
+          ) : (
+            <p className="text-sm font-medium uppercase text-stone-500">
+              Sold out
+            </p>
+          )}
+          <Button type="small">Add to Cart</Button>
         </div>
       </div>
     </li>
