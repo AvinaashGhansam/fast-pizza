@@ -1,9 +1,25 @@
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import { createOrder } from "../../services/apiRestaurant.ts";
 
-import { OrderType } from "./type/OrderType.ts";
+import { OrderType } from "./type/createOrderType.ts";
 import Button from "../../components/Button.tsx";
+import { useSelector } from "react-redux";
+import { RootState } from "../../state/createRootState.ts";
 
+interface CartType {
+  pizzaId: number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+interface FormDataType {
+  customer: string;
+  phone: string;
+  address: string;
+  priority?: boolean;
+  cart: CartType;
+}
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str: string) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
@@ -37,8 +53,8 @@ const fakeCart = [
 function CreateOrder() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  console.log(isSubmitting);
   const formError = useActionData() as OrderType;
+  const username = useSelector((state: RootState) => state.user.username);
 
   // const [withPriority, setWithPriority] = useState(false);
   return (
@@ -48,7 +64,13 @@ function CreateOrder() {
       <Form method="POST">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">First Name</label>
-          <input className="input grow" type="text" name="customer" required />
+          <input
+            className="input grow"
+            type="text"
+            defaultValue={username}
+            name="customer"
+            required
+          />
         </div>
 
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -105,24 +127,17 @@ function CreateOrder() {
  */
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
-  const data: Record<string, string> = {};
-  // Iterate over formData entries and convert them to strings
-  for (const [key, value] of formData.entries()) {
-    // Check if the value is a File object, if so, skip it or handle it accordingly
-    if (value instanceof File) {
-      // Handle File value, if needed
-      continue;
-    }
-    data[key] = value.toString();
-  }
-
-  console.log("data", data.cart);
-  const order = {
+  const data = Object.fromEntries(formData);
+  const order: FormDataType = {
+    address: "",
+    customer: "",
+    phone: "",
     ...data,
-    cart: JSON.parse(data.cart),
+    cart: JSON.parse(data.cart as string),
     priority: data.priority === "on",
   };
-  console.log("order", order);
+  console.log(order);
+
   // Validation and error handling
   const errors: Record<string, string> = {};
 

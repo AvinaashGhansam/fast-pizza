@@ -7,7 +7,7 @@ import {
 } from "../../utils/helpers";
 import { getOrder } from "../../services/apiRestaurant.ts";
 import { Params, useLoaderData } from "react-router-dom";
-import { OrderType } from "./type/OrderType.ts";
+import { OrderType } from "./type/createOrderType.ts";
 import OrderItem from "./OrderItem.tsx";
 
 function Order() {
@@ -55,7 +55,7 @@ function Order() {
       </div>
       <ul className="divide-y divide-stone-200 border-b border-t">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.id} />
+          <OrderItem item={item} key={item.pizzaId} />
         ))}
       </ul>
       <div className="space-y-2 bg-stone-200 px-6 py-5">

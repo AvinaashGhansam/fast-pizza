@@ -1,5 +1,8 @@
 import { formatCurrency } from "../../utils/helpers.ts";
 import Button from "../../components/Button.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import { getCart } from "./cartSlice.ts";
+import emptyCart from "./EmptyCart.tsx";
 
 interface CartItemProps {
   item: {

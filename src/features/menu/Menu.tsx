@@ -6,9 +6,6 @@ import { getMenu } from "../../services/apiRestaurant.ts";
 function Menu() {
   // Step 3 use loader hook
   const menus = useLoaderData() as MenuType[];
-  console.log(menus);
-
-  console.log("Look here ", menus);
   return (
     <ul className="divide-y divide-stone-200 px-2">
       {menus.map((pizza) => (

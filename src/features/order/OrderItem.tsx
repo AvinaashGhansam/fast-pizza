@@ -1,6 +1,17 @@
 import { formatCurrency } from "../../utils/helpers.ts";
 
-function OrderItem({ item, isLoadingIngredients, ingredients }) {
+import { CartType } from "../cart/type/createCartType.ts";
+
+interface OrderItemProps {
+  item: CartType;
+  isLoadingIngredients: boolean;
+  ingredients: string[];
+}
+function OrderItem({
+  item,
+  isLoadingIngredients,
+  ingredients,
+}: OrderItemProps) {
   const { quantity, name, totalPrice } = item;
 
   return (
