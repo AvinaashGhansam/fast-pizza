@@ -1,18 +1,12 @@
 import { formatCurrency } from "../../utils/helpers.ts";
-import Button from "../../components/Button.tsx";
-import { useDispatch, useSelector } from "react-redux";
-import { getCart } from "./cartSlice.ts";
-import emptyCart from "./EmptyCart.tsx";
+import DeleteItem from "./DeleteItem.tsx";
+import { CartType } from "./type/createCartType.ts";
 
 interface CartItemProps {
-  item: {
-    name: string;
-    quantity: number;
-    totalPrice: number;
-  };
+  item: CartType;
 }
 function CartItem({ item }: CartItemProps) {
-  const { name, quantity, totalPrice } = item;
+  const { pizzaId, name, quantity, totalPrice } = item;
 
   return (
     <li className="sm: justify-between py-3 sm:flex sm:items-center">
@@ -21,7 +15,7 @@ function CartItem({ item }: CartItemProps) {
       </p>
       <div className="flex items-center sm:gap-6">
         <p className="text-sm font-bold">{formatCurrency(totalPrice)}</p>
-        <Button type="small">Delete</Button>
+        <DeleteItem pizzaId={pizzaId} />
       </div>
     </li>
   );

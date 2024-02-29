@@ -56,6 +56,10 @@ export const getTotalPrice = (state: RootState) =>
 
 export const getCart = (state: RootState) => state.cart.cart;
 
+export const getQuantityForIndividualItemId =
+  (id: number) => (state: RootState) =>
+    state.cart.cart.find((item) => item.pizzaId === id)?.quantity ?? 0;
+
 export const {
   addItem,
   deleteItem,

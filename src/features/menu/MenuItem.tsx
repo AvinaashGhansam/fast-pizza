@@ -2,8 +2,13 @@ import { formatCurrency } from "../../utils/helpers.ts";
 import { MenuType } from "./types/menu-types.ts";
 import Button from "../../components/Button.tsx";
 import { CartType } from "../cart/type/createCartType.ts";
-import { useDispatch } from "react-redux";
-import { addItem } from "../cart/cartSlice.ts";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addItem,
+  getCart,
+  getQuantityForIndividualItemId,
+} from "../cart/cartSlice.ts";
+import DeleteItem from "../cart/DeleteItem.tsx";
 
 interface MenuItemProps {
   pizza: MenuType;
@@ -12,13 +17,17 @@ interface MenuItemProps {
 function MenuItem({ pizza }: MenuItemProps) {
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
   const dispatch = useDispatch();
+  const currentQuantity = useSelector(getQuantityForIndividualItemId(id));
+
+  const isInCart = currentQuantity > 0;
   function handleAddToCart() {
     // new pizza object
     const newItem: CartType = {
       name: name,
       pizzaId: id,
       quantity: 1,
-      totalPrice: unitPrice,
+      unitPrice: unitPrice,
+      totalPrice: 0,
     };
     dispatch(addItem(newItem));
   }
@@ -44,7 +53,8 @@ function MenuItem({ pizza }: MenuItemProps) {
               Sold out
             </p>
           )}
-          {!soldOut && (
+          {isInCart && <DeleteItem pizzaId={id} />}
+          {!soldOut && !isInCart && (
             <Button type="small" onClick={handleAddToCart}>
               Add to Cart
             </Button>
