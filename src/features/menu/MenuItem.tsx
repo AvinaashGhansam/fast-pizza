@@ -3,12 +3,9 @@ import { MenuType } from "./types/menu-types.ts";
 import Button from "../../components/Button.tsx";
 import { CartType } from "../cart/type/createCartType.ts";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addItem,
-  getCart,
-  getQuantityForIndividualItemId,
-} from "../cart/cartSlice.ts";
+import { addItem, getQuantityForIndividualItemId } from "../cart/cartSlice.ts";
 import DeleteItem from "../cart/DeleteItem.tsx";
+import UpdateItemInCart from "../cart/UpdateItemInCart.tsx";
 
 interface MenuItemProps {
   pizza: MenuType;
@@ -27,7 +24,7 @@ function MenuItem({ pizza }: MenuItemProps) {
       pizzaId: id,
       quantity: 1,
       unitPrice: unitPrice,
-      totalPrice: 0,
+      totalPrice: unitPrice,
     };
     dispatch(addItem(newItem));
   }
@@ -53,7 +50,15 @@ function MenuItem({ pizza }: MenuItemProps) {
               Sold out
             </p>
           )}
-          {isInCart && <DeleteItem pizzaId={id} />}
+          {isInCart && (
+            <div className="flex items-center gap-3 sm:gap-8">
+              <UpdateItemInCart
+                pizzaId={id}
+                currentQuantity={currentQuantity}
+              />
+              <DeleteItem pizzaId={id} />
+            </div>
+          )}
           {!soldOut && !isInCart && (
             <Button type="small" onClick={handleAddToCart}>
               Add to Cart
