@@ -11,6 +11,7 @@ import { OrderType } from "./type/createOrderType.ts";
 import OrderItem from "./OrderItem.tsx";
 import { useEffect } from "react";
 import { route } from "../../utils/router/route.ts";
+import UpdateOrder from "./UpdateOrder.tsx";
 
 function Order() {
   // get the data from loader
@@ -92,6 +93,7 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+      {!priority ? <UpdateOrder order={order} /> : ""}
     </div>
   );
 }
