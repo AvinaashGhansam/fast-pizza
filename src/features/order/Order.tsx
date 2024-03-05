@@ -6,14 +6,25 @@ import {
   formatDate,
 } from "../../utils/helpers";
 import { getOrder } from "../../services/apiRestaurant.ts";
-import { Params, useLoaderData } from "react-router-dom";
+import { Params, useFetcher, useLoaderData } from "react-router-dom";
 import { OrderType } from "./type/createOrderType.ts";
 import OrderItem from "./OrderItem.tsx";
+import { useEffect } from "react";
+import { route } from "../../utils/router/route.ts";
 
 function Order() {
   // get the data from loader
   const order = useLoaderData() as OrderType;
-  // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state === "idle") {
+      fetcher.load(route.MENU);
+    }
+    // This will load the data in the fetcher so we can use it later on
+  }, [fetcher]);
+  console.log(fetcher.data);
+  // Everyone can search for all orders, so for privacy reasons we're exclude names or address, these are only for the restaurant staff
   const {
     id,
     status,
@@ -24,7 +35,8 @@ function Order() {
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
-
+  console.log("priority", priority);
+  console.log(order);
   return (
     <div className="space-y-8 px-4 py-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -55,7 +67,16 @@ function Order() {
       </div>
       <ul className="divide-y divide-stone-200 border-b border-t">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
+          <OrderItem
+            item={item}
+            key={item.pizzaId}
+            isLoadingIngredients={fetcher.state === "loading"}
+            ingredients={
+              fetcher.data?.find(
+                (el: OrderType) => parseInt(el.id) === item.pizzaId,
+              ).ingredients ?? []
+            }
+          />
         ))}
       </ul>
       <div className="space-y-2 bg-stone-200 px-6 py-5">

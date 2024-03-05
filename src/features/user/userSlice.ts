@@ -2,27 +2,24 @@ import { UserState } from "./userType/createUser.ts";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getAddress } from "../../services/apiGeocoding.ts";
 import { Position } from "../../services/type/Position.ts";
-import { PositionObject } from "../../services/type/PositionObject.ts";
-import { action } from "../order/CreateOrder.tsx";
 
 const initialState: UserState = {
   username: "",
   status: "idle",
-  position: { latitude: "", longitude: "" },
+  position: { latitude: 0, longitude: 0 },
   address: "",
   error: "",
 };
-
-type AddressPayload =
-  | {
-      position: { latitude: string; longitude: string };
-      address: string;
-    }
-  | { error: { message: string } };
-
-function getPosition(): Promise<unknown> {
+function getPosition(): Promise<Position> {
   return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        }),
+      reject,
+    );
   });
 }
 
@@ -30,10 +27,10 @@ export const fetchAddress = createAsyncThunk(
   "user/fetchAddress",
   async function () {
     // 1) We get the user's geolocation position
-    const positionObj = (await getPosition()) as Position;
-    const position: PositionObject = {
-      latitude: positionObj.coords.latitude,
-      longitude: positionObj.coords.longitude,
+    const positionObj = await getPosition();
+    const position: Position = {
+      latitude: positionObj.latitude,
+      longitude: positionObj.longitude,
     };
 
     // 2) Then we use a reverse geocoding API to get a description of the user's address, so we can display it the order form, so that the user can correct it if wrong
@@ -63,7 +60,7 @@ const userSlice = createSlice({
         (
           state: UserState,
           action: PayloadAction<{
-            position: { latitude: string; longitude: string };
+            position: Position;
             address: string;
           }>,
         ) => {
@@ -71,8 +68,11 @@ const userSlice = createSlice({
           state.address = action.payload.address;
           state.status = "idle";
         },
-      ),
-  // TODO: HANDLE REJECTED
+      )
+      .addCase(fetchAddress.rejected, (state: UserState) => {
+        state.status = "error";
+        state.error = "There was a problem getting your address";
+      }),
 });
 
 // THUNK

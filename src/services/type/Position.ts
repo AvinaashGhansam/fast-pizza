@@ -1,5 +1,4 @@
-import { PositionObject } from "./PositionObject.ts";
-
 export type Position = {
-  coords: PositionObject;
+  latitude: number;
+  longitude: number;
 };
